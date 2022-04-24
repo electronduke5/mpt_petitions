@@ -1,15 +1,10 @@
-import 'dart:html';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   static const String _title = 'МПТ Петиции';
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +27,6 @@ class MyRegistrationPage extends StatefulWidget {
 }
 
 class _MyRegistrationPageState extends State<MyRegistrationPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +53,17 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
-  bool _isObscureRepeaded = true;
+  bool _isObscureRepeated = true;
 
   late String password;
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      //key: key,
+      key: _formKey,
       child: SingleChildScrollView(
         child: Container(
           clipBehavior: Clip.antiAlias,
@@ -75,7 +71,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
               borderRadius: const BorderRadius.all(Radius.circular(7)),
               color: Theme.of(context).backgroundColor),
           alignment: Alignment.center,
-          margin: const EdgeInsets.all(45),
+          margin: const EdgeInsets.all(45.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -103,7 +99,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     "Станьте частью нашей команды!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.normal,
                         color: Color.fromRGBO(4, 19, 165, 1),
                         decoration: TextDecoration.none),
@@ -114,7 +110,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 300,
+                    height: 70,
                     width: 400,
                     child: TextFormField(
                       keyboardType: TextInputType.emailAddress,
@@ -145,6 +141,12 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         if (value == null || value.isEmpty) {
                           return "Заполните поле ввода почты";
                         }
+                        if(!value.contains("@")){
+                          return "Неправильно введен адрес электронной почты";
+                        }
+                        if(!RegExp(r"^[a-z0-9_-]{1,}\.[a-z]{1,2}.[a-z]{1,}@mpt\.ru").hasMatch(value)){
+                          return "Неправильно введен адрес электронной почты";
+                        }
                         return null;
                       },
                     ),
@@ -153,9 +155,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   SizedBox(
-                    height: 300,
+                    height: 70,
                     width: 400,
                     child: TextFormField(
                       obscureText: _isObscure,
@@ -171,7 +174,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                             _isObscure
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Theme.of(context).primaryColor,
+                            color: _isObscure ? const Color.fromRGBO(202, 201, 200, 1) : Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {
                             setState(() {
@@ -214,10 +217,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 300,
+                    height: 100,
                     width: 400,
                     child: TextFormField(
-                      obscureText: _isObscureRepeaded,
+                      obscureText: _isObscureRepeated,
                       enableSuggestions: false,
                       autocorrect: false,
                       cursorColor: const Color.fromRGBO(254, 125, 99, 1),
@@ -227,14 +230,14 @@ class _RegistrationFormState extends State<RegistrationForm> {
                       decoration: InputDecoration(
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isObscure
+                            _isObscureRepeated
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Theme.of(context).primaryColor,
+                            color: _isObscureRepeated ? const Color.fromRGBO(202, 201, 200, 1) : Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {
                             setState(() {
-                              _isObscureRepeaded = !_isObscureRepeaded;
+                              _isObscureRepeated = !_isObscureRepeated;
                             });
                           },
                         ),
@@ -272,9 +275,16 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if(_formKey.currentState!.validate()){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Processing Data")),
+                        );
+                      }
+                    },
                     child: const Text(
                       "Зарегистрироваться",
                       style: TextStyle(
@@ -286,6 +296,26 @@ class _RegistrationFormState extends State<RegistrationForm> {
                           const EdgeInsets.fromLTRB(15, 20, 15, 20)),
                       backgroundColor: MaterialStateProperty.all(
                           Theme.of(context).primaryColor),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Уже есть аккаунт?",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Войти",
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Theme.of(context).primaryColorDark),
                     ),
                   ),
                 ],
