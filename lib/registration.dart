@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'hide_password.dart';
 
 void main() => runApp(const MyApp());
 
@@ -11,10 +14,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: _title,
       theme: ThemeData(
+          fontFamily: "Inter",
           primaryColor: const Color.fromRGBO(254, 125, 99, 1),
           backgroundColor: const Color.fromRGBO(250, 232, 221, 1),
           primaryColorDark: const Color.fromRGBO(4, 19, 165, 1)),
-      home: const MyRegistrationPage(),
+      home: BlocProvider(
+        create: (context) => PasswordBloc(),
+        child: const MyRegistrationPage(),
+      ),
     );
   }
 }
@@ -27,7 +34,6 @@ class MyRegistrationPage extends StatefulWidget {
 }
 
 class _MyRegistrationPageState extends State<MyRegistrationPage> {
-
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: MyRegPageWidget());
@@ -53,8 +59,8 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   bool _isObscure = true;
   bool _isObscureRepeated = true;
 
@@ -62,6 +68,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
 
   @override
   Widget build(BuildContext context) {
+    PasswordBloc _bloc = BlocProvider.of<PasswordBloc>(context);
+    PasswordBloc _blocIcon = BlocProvider.of<PasswordBloc>(context);
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -86,7 +94,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.05,
+                        fontWeight: FontWeight.w700,
                         color: Color.fromRGBO(4, 19, 165, 1),
                         decoration: TextDecoration.none),
                   )
@@ -100,59 +109,14 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20,
+                        letterSpacing: 0.05,
                         fontWeight: FontWeight.normal,
                         color: Color.fromRGBO(4, 19, 165, 1),
                         decoration: TextDecoration.none),
                   )
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 70,
-                    width: 400,
-                    child: TextFormField(
-                      keyboardType: TextInputType.emailAddress,
-                      cursorColor: Theme.of(context).primaryColor,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: 'Введите почту',
-                        fillColor: Color.fromRGBO(255, 253, 248, 1),
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromRGBO(255, 253, 248, 1),
-                                width: 3.0),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0))),
-                        hintStyle:
-                            TextStyle(color: Color.fromRGBO(202, 201, 200, 1)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromRGBO(254, 125, 99, 1),
-                                width: 3.0),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0))),
-                      ),
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return "Заполните поле ввода почты";
-                        }
-                        if(!value.contains("@")){
-                          return "Неправильно введен адрес электронной почты";
-                        }
-                        if(!RegExp(r"^[a-z0-9_-]{1,}\.[a-z]{1,2}.[a-z]{1,}@mpt\.ru").hasMatch(value)){
-                          return "Неправильно введен адрес электронной почты";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              _loginField(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -174,11 +138,18 @@ class _RegistrationFormState extends State<RegistrationForm> {
                             _isObscure
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: _isObscure ? const Color.fromRGBO(202, 201, 200, 1) : Theme.of(context).primaryColorDark,
+                            color: _isObscure
+                                ? const Color.fromRGBO(202, 201, 200, 1)
+                                : Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {
                             setState(() {
                               _isObscure = !_isObscure;
+                              // // _bloc.add(currentMap["obscure"] == false
+                              // //     ? PasswordEvent.password_show
+                              // //     : PasswordEvent.password_hide);
+                              //
+                              // _bloc.add(PasswordEvent.password_hide);
                             });
                           },
                         ),
@@ -233,7 +204,9 @@ class _RegistrationFormState extends State<RegistrationForm> {
                             _isObscureRepeated
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: _isObscureRepeated ? const Color.fromRGBO(202, 201, 200, 1) : Theme.of(context).primaryColorDark,
+                            color: _isObscureRepeated
+                                ? const Color.fromRGBO(202, 201, 200, 1)
+                                : Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {
                             setState(() {
@@ -275,11 +248,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      if(_formKey.currentState!.validate()){
+                      if (_formKey.currentState!.validate()) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Processing Data")),
                         );
@@ -324,6 +296,52 @@ class _RegistrationFormState extends State<RegistrationForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _loginField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 70,
+          width: 400,
+          child: TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            cursorColor: Theme.of(context).primaryColor,
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'Введите почту',
+              fillColor: Color.fromRGBO(255, 253, 248, 1),
+              filled: true,
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color.fromRGBO(255, 253, 248, 1), width: 3.0),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              hintStyle: TextStyle(color: Color.fromRGBO(202, 201, 200, 1)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color.fromRGBO(254, 125, 99, 1), width: 3.0),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            ),
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return "Заполните поле ввода почты";
+              }
+              if (!value.contains("@")) {
+                return "Неправильно введен адрес электронной почты";
+              }
+              if (!RegExp(r"^[a-z0-9_-]{1,}\.[a-z]{1,2}.[a-z]{1,}@mpt\.ru")
+                  .hasMatch(value)) {
+                return "Неправильно введен адрес электронной почты";
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
     );
   }
 }
