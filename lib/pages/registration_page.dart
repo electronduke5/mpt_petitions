@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-//import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mpt_petitions/main.dart';
-import 'package:mpt_petitions/pages/main_page.dart';
+import 'package:mpt_petitions/models/user_reg_model.dart';
 import 'package:mpt_petitions/constants.dart';
+import '../services/registration_service.dart';
+import '../interfaces/registration_interface.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -14,6 +13,13 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationFormState extends State<RegistrationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final IRegistration _registrationService = RegistrationService();
+
+  final _surnameController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _isObscure = true;
   bool _isObscureRepeated = true;
@@ -85,6 +91,8 @@ class _RegistrationFormState extends State<RegistrationPage> {
                   const SizedBox(
                     height: 10,
                   ),
+                  _surnameField(),
+                  _nameField(),
                   _loginField(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -94,6 +102,8 @@ class _RegistrationFormState extends State<RegistrationPage> {
                         height: 70,
                         width: 400,
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          controller: _passwordController,
                           obscureText: _isObscure,
                           enableSuggestions: false,
                           autocorrect: false,
@@ -161,6 +171,7 @@ class _RegistrationFormState extends State<RegistrationPage> {
                         height: 100,
                         width: 400,
                         child: TextFormField(
+                          textInputAction: TextInputAction.done,
                           obscureText: _isObscureRepeated,
                           enableSuggestions: false,
                           autocorrect: false,
@@ -220,16 +231,27 @@ class _RegistrationFormState extends State<RegistrationPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Processing Data")),
+                              const SnackBar(content: Text("Отправляю запрос")),
                             );
+                            try {
+                              UserRegModel? user =
+                                  await _registrationService.registration(
+                                      _surnameController.text,
+                                      _nameController.text,
+                                      _emailController.text,
+                                      _passwordController.text);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                   SnackBar(
+                                      content: Text("На почту " + _emailController.text + " отправлено сообщение с подтвеждением")));
 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const MainPage()));
+                            } catch (e) {
+                              print(e.toString());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())));
+                            }
                           }
                         },
                         child: const Text(
@@ -278,6 +300,90 @@ class _RegistrationFormState extends State<RegistrationPage> {
     );
   }
 
+  Widget _surnameField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 70,
+          width: 400,
+          child: TextFormField(
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
+              cursorColor: ConstantValues.primaryColor,
+              controller: _surnameController,
+              style: const TextStyle(
+                color: ConstantValues.primaryColor,
+              ),
+              decoration: const InputDecoration(
+                hintText: "Фамилия",
+                fillColor: ConstantValues.fieldFillColor,
+                filled: true,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: ConstantValues.borderRadius_7,
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 250, 232, 220), width: 0.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: ConstantValues.borderRadius_7,
+                  borderSide: BorderSide(
+                      color: ConstantValues.primaryColor, width: 2.0),
+                ),
+                hintStyle: TextStyle(color: ConstantValues.hintColor),
+              ),
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Заполните поле ввода фамилии";
+                }
+                return null;
+              }),
+        ),
+      ],
+    );
+  }
+
+  Widget _nameField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 70,
+          width: 400,
+          child: TextFormField(
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
+              cursorColor: ConstantValues.primaryColor,
+              controller: _nameController,
+              style: const TextStyle(
+                color: ConstantValues.primaryColor,
+              ),
+              decoration: const InputDecoration(
+                hintText: "Имя",
+                fillColor: ConstantValues.fieldFillColor,
+                filled: true,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: ConstantValues.borderRadius_7,
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 250, 232, 220), width: 0.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: ConstantValues.borderRadius_7,
+                  borderSide: BorderSide(
+                      color: ConstantValues.primaryColor, width: 2.0),
+                ),
+                hintStyle: TextStyle(color: ConstantValues.hintColor),
+              ),
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return "Заполните поле ввода имени";
+                }
+                return null;
+              }),
+        ),
+      ],
+    );
+  }
+
   Widget _loginField() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -286,6 +392,8 @@ class _RegistrationFormState extends State<RegistrationPage> {
           height: 70,
           width: 400,
           child: TextFormField(
+            controller: _emailController,
+            textInputAction: TextInputAction.next,
             keyboardType: TextInputType.emailAddress,
             cursorColor: ConstantValues.primaryColor,
             style: const TextStyle(

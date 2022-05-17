@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../models/user_model.dart';
+
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  //const MainPage({Key? key}) : super(key: key);
+  final UserModel? user;
+  const MainPage({Key? key, required this.user}) : super(key: key);
+
   @override
-  State<StatefulWidget> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<MainPage> {

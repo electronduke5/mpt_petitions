@@ -4,8 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mpt_petitions/interfaces/get_user_interface.dart';
+
+import 'package:mpt_petitions/models/user_login_model.dart';
 import 'package:mpt_petitions/pages/registration_page.dart';
-import 'package:mpt_petitions/main.dart';
+import 'package:mpt_petitions/services/get_user_service.dart';
+import 'package:mpt_petitions/services/login_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../interfaces/login_interface.dart';
+import '../models/user_model.dart';
+import 'main_page.dart';
 
 class AuthorizationPage extends StatefulWidget {
   const AuthorizationPage({Key? key}) : super(key: key);
@@ -16,6 +25,13 @@ class AuthorizationPage extends StatefulWidget {
 
 class MyFormState extends State<AuthorizationPage> {
   final _formKey = GlobalKey<FormState>();
+
+  final ILogin _loginService = LoginService();
+  final IGetUser _getUser = GetUserService();
+
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   bool obscure = true;
 
   @override
@@ -62,34 +78,35 @@ class MyFormState extends State<AuthorizationPage> {
                       SizedBox(
                         height: 90,
                         child: TextFormField(
+                          controller: _emailController,
                           validator: (value) {
                             if (value == "") return "Поле ввода не заполнено";
                           },
                           decoration: const InputDecoration(
                             errorBorder: OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(8.0)),
+                                  BorderRadius.all(Radius.circular(8.0)),
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 254, 125, 99),
                                   width: 2.0),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(8.0)),
+                                  BorderRadius.all(Radius.circular(8.0)),
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 254, 125, 99),
                                   width: 2.0),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(8.0)),
+                                  BorderRadius.all(Radius.circular(8.0)),
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 250, 232, 220),
                                   width: 0.0),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(8.0)),
+                                  BorderRadius.all(Radius.circular(8.0)),
                               borderSide: BorderSide(
                                   color: Color.fromARGB(255, 254, 125, 99),
                                   width: 2.0),
@@ -110,6 +127,7 @@ class MyFormState extends State<AuthorizationPage> {
                       SizedBox(
                         height: 70,
                         child: TextFormField(
+                          controller: _passwordController,
                           validator: (value) {
                             if (value == "") return "Поле ввода не заполнено";
                           },
@@ -136,14 +154,14 @@ class MyFormState extends State<AuthorizationPage> {
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(8.0)),
+                                    BorderRadius.all(Radius.circular(8.0)),
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 254, 125, 99),
                                     width: 2.0),
                               ),
                               focusedErrorBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(8.0)),
+                                    BorderRadius.all(Radius.circular(8.0)),
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 254, 125, 99),
                                     width: 2.0),
@@ -151,14 +169,14 @@ class MyFormState extends State<AuthorizationPage> {
                               border: OutlineInputBorder(),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(8.0)),
+                                    BorderRadius.all(Radius.circular(8.0)),
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 250, 232, 220),
                                     width: 0.0),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(8.0)),
+                                    BorderRadius.all(Radius.circular(8.0)),
                                 borderSide: BorderSide(
                                     color: Color.fromARGB(255, 254, 125, 99),
                                     width: 2.0),
@@ -206,15 +224,53 @@ class MyFormState extends State<AuthorizationPage> {
                     child: SizedBox(
                       width: 250,
                       child: RaisedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate())
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: Text('Форма усакшно заполненно')));
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              UserLoginModel? userLogin =
+                                  await _loginService.login(
+                                      _emailController.text,
+                                      _passwordController.text);
+
+                              if (userLogin != null) {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setString("token", userLogin.token);
+
+                                UserModel? user = await _getUser.getUser(prefs);
+
+                                if (user != null) {
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              MainPage(user: user)));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Ошибка при получении данных пользователя")),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "Для входа в аккаунт необходимо подтвердить адрес эл. почты!")),
+                                );
+                              }
+                            } catch (e) {
+                              print(e.toString());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Технические шоколадки =/")),
+                              );
+                            }
+                          }
                         },
-                        shape: new RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(5.0)),
-                        color: Color.fromARGB(255, 254, 125, 99),
-                        child: Text(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0)),
+                        color: const Color.fromARGB(255, 254, 125, 99),
+                        child: const Text(
                           'Войти в аккаунт',
                           style: TextStyle(
                             fontSize: 12,
@@ -241,7 +297,11 @@ class MyFormState extends State<AuthorizationPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationPage()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RegistrationPage()));
                           },
                           child: const Text(
                             "Зарегистрироваться",
@@ -258,6 +318,5 @@ class MyFormState extends State<AuthorizationPage> {
         ),
       ),
     );
-
   }
 }
