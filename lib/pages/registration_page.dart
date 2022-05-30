@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mpt_petitions/models/user_reg_model.dart';
-import 'package:mpt_petitions/constants.dart';
+import 'package:mpt_petitions/constants/constants.dart';
 import '../services/registration_service.dart';
 import '../interfaces/registration_interface.dart';
 
@@ -154,8 +154,17 @@ class _RegistrationFormState extends State<RegistrationPage> {
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
                               return "Заполните поле ввода пароля";
-                            } else if (value.length < 6) {
-                              return "Пароль должен быть больше 6 символов";
+                            } else if (value.length < 8) {
+                              return "Пароль должен быть больше 8 символов";
+                            }
+                            else if(!RegExp(r'^(?=.*[a-z]).+$').hasMatch(value)){
+                              return "В пароле должна присутствовать хотя бы одна строчная буква";
+                            }
+                            else if(!RegExp(r'^(?=.*[A-Z]).+$').hasMatch(value)){
+                              return "В пароле должна присутствовать хотя бы одна заглавная буква";
+                            }
+                            else if(!RegExp(r'^(?=.*[1-9]).+$').hasMatch(value)){
+                              return "В пароле должна присутствовать хотя бы одна цифра";
                             }
                             password = value;
                             return null;
@@ -216,8 +225,8 @@ class _RegistrationFormState extends State<RegistrationPage> {
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
                               return "Заполните поле ввода пароля";
-                            } else if (value.length < 6) {
-                              return "Пароль должен быть больше 6 символов";
+                            } else if (value.length < 8) {
+                              return "Пароль должен быть больше 8 символов";
                             } else if (value != password) {
                               return "Пароли не совпадают";
                             }

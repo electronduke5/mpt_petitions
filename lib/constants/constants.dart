@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mpt_petitions/models/user_model.dart';
 
 class ConstantValues {
   final String _title = "МПТ Петиции";

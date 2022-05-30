@@ -40,6 +40,12 @@ dependencies:
   http: ^0.13.4
   dio_cookie_manager: ^2.0.0
   shared_preferences: ^2.0.15
+  file_picker: ^4.5.1
+  image_picker: ^0.8.5
+  image_picker_for_web: ^2.1.8
+  image_picker_web: ^2.1.1
+
+  get_it:
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +73,8 @@ flutter:
   assets:
     - web/icons/IconMPT.svg
     - web/icons/IconSearch.svg
+    - web/icons/IconAccount.svg
+    - web/icons/IconLogout.svg
 
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/assets-and-images/#resolution-aware.

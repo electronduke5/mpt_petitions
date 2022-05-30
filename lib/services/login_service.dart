@@ -15,6 +15,8 @@ class LoginService extends ILogin{
     var response = await dio.post(api, data:data);
 
     print("headers login: ${response.headers.toString()}");
+    print("Code login: ${response.statusCode}");
+    print("message login: ${response.statusMessage}");
     if(response.statusCode == 200){
       final body = response.data;
       return UserLoginModel(email: email, password: password, token: body['token']);

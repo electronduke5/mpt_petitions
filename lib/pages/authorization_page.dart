@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mpt_petitions/interfaces/get_user_interface.dart';
+import '../constants/global.dart' as global;
+
 
 import 'package:mpt_petitions/models/user_login_model.dart';
 import 'package:mpt_petitions/pages/registration_page.dart';
 import 'package:mpt_petitions/services/get_user_service.dart';
 import 'package:mpt_petitions/services/login_service.dart';
+import 'package:mpt_petitions/services/navigation_service.dart';
+import 'package:mpt_petitions/constants/route_path.dart' as routes;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../interfaces/login_interface.dart';
@@ -28,6 +32,8 @@ class MyFormState extends State<AuthorizationPage> {
 
   final ILogin _loginService = LoginService();
   final IGetUser _getUser = GetUserService();
+
+  final NavigationService _navigationService = NavigationService();
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -223,10 +229,10 @@ class MyFormState extends State<AuthorizationPage> {
                     alignment: Alignment.center,
                     child: SizedBox(
                       width: 250,
-                      child: RaisedButton(
+                      child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            try {
+                           // try {
                               UserLoginModel? userLogin =
                                   await _loginService.login(
                                       _emailController.text,
@@ -239,7 +245,11 @@ class MyFormState extends State<AuthorizationPage> {
 
                                 UserModel? user = await _getUser.getUser(prefs);
 
+
+
                                 if (user != null) {
+                                  global.user = user;
+                                  print("User Petitions: ${global.user.petitions}");
                                   Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                           builder: (_) =>
@@ -258,18 +268,22 @@ class MyFormState extends State<AuthorizationPage> {
                                           "Для входа в аккаунт необходимо подтвердить адрес эл. почты!")),
                                 );
                               }
-                            } catch (e) {
-                              print(e.toString());
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Технические шоколадки =/")),
-                              );
-                            }
+                            // } catch (e) {
+                            //   print(e.toString());
+                            //   print(e.runtimeType);
+                            //
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     const SnackBar(
+                            //         content: Text("Технические шоколадки =/")),
+                            //   );
+                            // }
                           }
                         },
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        color: const Color.fromARGB(255, 254, 125, 99),
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          primary: const Color.fromARGB(255, 254, 125, 99),
+                        ),
                         child: const Text(
                           'Войти в аккаунт',
                           style: TextStyle(

@@ -16,6 +16,8 @@ class RegistrationService extends IRegistration {
     final dio = Dio();
     Response response;
     response = await dio.post(api, data: data);
+    print("Response: ${response.data}");
+    print("Code: ${response.statusCode}");
     if (response.statusCode == 200) {
       return UserRegModel(surname: surname, name: name, email: email, password: password);
     }

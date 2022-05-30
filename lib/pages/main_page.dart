@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart';
+import 'package:mpt_petitions/interfaces/logout_interface.dart';
+import 'package:mpt_petitions/pages/Create_Petition.dart';
+import 'package:mpt_petitions/pages/Custom_Wigets.dart';
+import 'package:mpt_petitions/pages/Profile.dart';
+import 'package:mpt_petitions/pages/View_petitions.dart';
+import 'package:mpt_petitions/pages/authorization_page.dart';
+import 'package:mpt_petitions/services/logout_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
 
 class MainPage extends StatefulWidget {
-  //const MainPage({Key? key}) : super(key: key);
   final UserModel? user;
   const MainPage({Key? key, required this.user}) : super(key: key);
-
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<MainPage> {
+  final ILogout _logoutService = LogoutService();
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -29,104 +38,7 @@ class _HomePageState extends State<MainPage> {
               alignment: Alignment.center,
               height: 90,
               color: const Color.fromRGBO(4, 19, 165, 0.75),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  "Создать",
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0.05,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color.fromRGBO(255, 192, 167, 1),
-                                      decoration: TextDecoration.none),
-                                )),
-                          ]),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  "Просмотр",
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontFamily: 'Inter',
-                                      letterSpacing: 0.05,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color.fromRGBO(255, 192, 167, 1),
-                                      decoration: TextDecoration.none),
-                                ))
-                          ]),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextButton(
-                              onPressed: () {},
-                              child: Row(
-                                children: [
-                                  SvgPicture.asset("web/icons/IconMPT.svg",
-                                      height: 70, width: 70),
-                                  const Text(
-                                    " МПТ ПЕТИЦИИ",
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        fontFamily: 'Inter',
-                                        letterSpacing: 0.05,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color.fromRGBO(243, 243, 243, 1),
-                                        decoration: TextDecoration.none),
-                                  )
-                                ],
-                              ))
-                        ],
-                      ),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: SvgPicture.asset(
-                                  "web/icons/IconSearch.svg",
-                                  height: 30,
-                                  width: 30),
-                            ),
-                          ]),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                "Вход",
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'Inter',
-                                    letterSpacing: 0.05,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color.fromRGBO(255, 192, 167, 1),
-                                    decoration: TextDecoration.none),
-                              ))
-                        ],
-                      )
-                    ],
-                  ))
-                ],
-              ),
+              child: AppBar_widget(),
             ),
             Container(
               clipBehavior: Clip.antiAlias,
@@ -173,7 +85,10 @@ class _HomePageState extends State<MainPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (_) => const CreatePetition()));
+                      },
                       child: const Text(
                         "Создать петицию",
                         style: TextStyle(
