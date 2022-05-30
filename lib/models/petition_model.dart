@@ -38,7 +38,7 @@ class PetitionModel {
     if (image != null) {
       base64 = base64Decode(image);
 
-      imageResult = "https://${latin1.decoder.convert(base64).substring(27)}";
+      imageResult = latin1.decoder.convert(base64);
       print('imageResult: $imageResult');
     } else {
       imageResult = null;

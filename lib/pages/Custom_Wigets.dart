@@ -327,6 +327,7 @@ class Petition_widget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 20.0, top: 10.0),
                         child: Container(
+                          width: 540,
                           child: Text(
                             description,
                             textAlign: TextAlign.left,
@@ -348,16 +349,16 @@ class Petition_widget extends StatelessWidget {
                       if (pickedFile != null)
                         Padding(
                             padding: const EdgeInsets.only(
-                                right: 20, left: 300, top: 10),
+                                right: 20, left: 30, top: 20, bottom: 20),
                             child: Image.network(
                               pickedFile as String,
-                              height: 275,
-                              width: 275,
+                              height: 250,
+                              width: 250,
                             ))
                       else
                         const Padding(
                             padding:
-                                EdgeInsets.only(right: 20, left: 300, top: 20),
+                                EdgeInsets.only(right: 20, left: 30, top: 20, bottom: 20),
                             child: Icon(
                               Icons.broken_image,
                               size: 40,

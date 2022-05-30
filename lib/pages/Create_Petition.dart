@@ -202,6 +202,7 @@ class MyFormState extends State {
                     onChanged: (text) {
                       content = text;
                     },
+                    maxLength: 500,
                     minLines: 10,
                     maxLines: 10,
                     decoration: const InputDecoration(
