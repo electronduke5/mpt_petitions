@@ -19,13 +19,16 @@ import 'package:mpt_petitions/pages/View_petitions.dart';
 import 'package:mpt_petitions/pages/authorization_page.dart';
 import 'package:mpt_petitions/services/delete_petition_service.dart';
 import 'package:mpt_petitions/services/logout_service.dart';
+import 'package:mpt_petitions/services/sign_petition_service.dart';
 import 'package:mpt_petitions/services/update_petition_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
 import '../constants/global.dart' as global;
 import '../interfaces/get_user_interface.dart';
+import '../interfaces/sign_petition_interface.dart';
 import '../services/get_user_service.dart';
+import '../services/sign_petition_service.dart';
 
 class AppBar_widget extends StatelessWidget {
   @override
@@ -139,13 +142,14 @@ class AppBar_widget extends StatelessWidget {
                     TextButton(
                         onPressed: () async {
                           try {
-                            var isLogout = await _logoutService.logout(global.user.token!);
+                            var isLogout =
+                                await _logoutService.logout(global.user.token!);
 
-                            if(isLogout == true){
+                            if (isLogout == true) {
                               Navigator.of(context).pushReplacement(
-                                       MaterialPageRoute(
-                                           builder: (_) =>
-                                           const AuthorizationPage()));
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AuthorizationPage()));
                             }
                           } catch (e) {
                             print(e.toString());
@@ -256,8 +260,6 @@ class PetitionWidget extends StatefulWidget {
       required this.onUpdateSelected()})
       : super(key: key);
 
-
-
   @override
   State<StatefulWidget> createState() => FormPetitionState();
 }
@@ -274,7 +276,6 @@ class FormPetitionState extends State<PetitionWidget> {
   Uint8List? pickedFile;
   bool isLoading = false;
   var _file;
-
 
   void _pickFile() async {
     try {
@@ -328,16 +329,18 @@ class FormPetitionState extends State<PetitionWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (isTextField == false)
-
                         Padding(
                           padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                          child: Text(
-                            widget.name,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                color: Color.fromARGB(255, 4, 19, 165),
-                                fontWeight: FontWeight.bold),
+                          child: SizedBox(
+                            width: 540,
+                            child: Text(
+                              widget.name,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 4, 19, 165),
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                       if (isTextField == true)
@@ -455,8 +458,8 @@ class FormPetitionState extends State<PetitionWidget> {
                       ),
                       if (isTextField == false)
                         Padding(
-                          padding: EdgeInsets.only(left: 20.0, top: 10.0),
-                          child: Container(
+                          padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                          child: SizedBox(
                             width: 540,
                             child: Text(
                               widget.description,
@@ -545,28 +548,29 @@ class FormPetitionState extends State<PetitionWidget> {
                           child: SizedBox(
                             width: 150,
                             child: ElevatedButton(
-                              onPressed: () async{
+                              onPressed: () async {
                                 setState(() {
                                   isTextField = false;
                                 });
-                                PetitionModel? petitionModel = await _updatePetition.updatePetition(
-                                    int.parse(widget.id), updateName, updateDescription, _file);
+                                PetitionModel? petitionModel =
+                                    await _updatePetition.updatePetition(
+                                        int.parse(widget.id),
+                                        updateName,
+                                        updateDescription,
+                                        _file);
 
-                                print("name: ${petitionModel!.name}");
-                                print("description: ${petitionModel.description}");
-
-                                print("TOKEN:${global.user.token}");
-                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
                                 prefs.setString("token", global.user.token!);
 
                                 global.user = (await _getUser.getUser(prefs))!;
 
-
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Петиция успешно обновлена!")));
+                                    const SnackBar(
+                                        content: Text(
+                                            "Петиция успешно обновлена!")));
 
                                 widget.onUpdateSelected();
-
                               },
                               style: ElevatedButton.styleFrom(
                                   shape: const RoundedRectangleBorder(
@@ -588,24 +592,22 @@ class FormPetitionState extends State<PetitionWidget> {
                           child: SizedBox(
                             width: 150,
                             child: ElevatedButton(
-                              onPressed: () async{
+                              onPressed: () async {
                                 setState(() {
                                   isTextField = false;
                                 });
 
-                                var isDeleted = await _deletePetition.deletePetition(int.parse(widget.id));
-                                if(isDeleted){
-
+                                var isDeleted = await _deletePetition
+                                    .deletePetition(int.parse(widget.id));
+                                if (isDeleted) {
                                   global.updateUser();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                        content: Text(
-                                            "Петиция удалена")),
+                                        content: Text("Петиция удалена")),
                                   );
 
                                   widget.onUpdateSelected();
-                                }
-                                else{
+                                } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                         content: Text(
@@ -671,7 +673,7 @@ class FormPetitionState extends State<PetitionWidget> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children:  [
+                          children: [
                             const SizedBox(
                                 height: 20,
                                 width: 600,
@@ -703,13 +705,13 @@ class FormPetitionState extends State<PetitionWidget> {
                               SizedBox(
                                 width: 160,
                                 height: 35,
-                                child: RaisedButton(
+                                child: ElevatedButton(
                                   onPressed: () {
                                     _pickFile();
                                   },
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5.0)),
-                                  color: const Color.fromARGB(255, 4, 19, 165),
+                                  //shape: RoundedRectangleBorder(
+                                  //    borderRadius: BorderRadius.circular(5.0)),
+                                  //color: const Color.fromARGB(255, 4, 19, 165),
                                   child: const Text(
                                     'Загрузить фотографию',
                                     textAlign: TextAlign.center,
@@ -732,7 +734,7 @@ class FormPetitionState extends State<PetitionWidget> {
   }
 }
 
-class Petition_widget extends StatelessWidget {
+class Petition_widget_ViewPetitions extends StatefulWidget {
   final String id;
   final String name;
   final String description;
@@ -743,10 +745,9 @@ class Petition_widget extends StatelessWidget {
   final String surnameAuthor;
   final String superStringCurrentWindow;
   final Color backgroundPetitionColor;
-  final Color containerPetitionColor;
-  bool isTextField = false;
+  final VoidCallback onUpdateSelected;
 
-  Petition_widget(
+  Petition_widget_ViewPetitions(
       {Key? key,
       required this.id,
       required this.name,
@@ -758,25 +759,58 @@ class Petition_widget extends StatelessWidget {
       required this.surnameAuthor,
       required this.superStringCurrentWindow,
       required this.backgroundPetitionColor,
-      required this.containerPetitionColor})
+      required this.onUpdateSelected()})
       : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => Petition_widgetState();
+}
+
+class Petition_widgetState extends State<Petition_widget_ViewPetitions> {
+  final ISign _postSign = SignService();
+
+  //final IPetitionSigned _signed = PetitionSignedService();
+  var sign;
+
+  //bool petition_is_signed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    //var signed = _signed.isSigned(
+    //    'https://mpt-petitions.ru/api/petitions/${widget.id}/check-if-signed',
+    //    user.token);
+
+    //FutureBuilder<IsPetitionSigned>(
+    //    future: signed,
+    //    builder: (context, snapshot) {
+    //      if (snapshot.hasData) {
+    //        IsPetitionSigned? sign = snapshot.data;
+    //        if (sign!.signed.toString() == 'false') {
+    //          petition_is_signed = false;
+    //        } else {
+    //          petition_is_signed = true;
+    //        }
+    //      }
+    //      return CircularProgressIndicator();
+    //    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: 1000,
-        height: 390,
-        color: containerPetitionColor,
+        height: 360,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 380,
+              height: 350,
               width: 900,
               decoration: BoxDecoration(
                 borderRadius: ConstantValues.borderRadius_7,
-                color: backgroundPetitionColor,
+                color: widget.backgroundPetitionColor,
               ),
               child: Row(
                 children: [
@@ -785,13 +819,16 @@ class Petition_widget extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-                        child: Text(
-                          name,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              color: Color.fromARGB(255, 4, 19, 165),
-                              fontWeight: FontWeight.bold),
+                        child: SizedBox(
+                          width: 540,
+                          child: Text(
+                            widget.name,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 4, 19, 165),
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                       Padding(
@@ -808,7 +845,8 @@ class Petition_widget extends StatelessWidget {
                               width: 7,
                             ),
                             Text(
-                              (surnameAuthor + " " + nameAuthor).toString(),
+                              (widget.surnameAuthor + " " + widget.nameAuthor)
+                                  .toString(),
                               textAlign: TextAlign.left,
                               style: const TextStyle(
                                   fontSize: 20,
@@ -832,7 +870,7 @@ class Petition_widget extends StatelessWidget {
                               width: 7,
                             ),
                             Text(
-                              signatures + ' человек',
+                              widget.signatures + ' человек',
                               textAlign: TextAlign.left,
                               style: const TextStyle(
                                 fontSize: 20,
@@ -843,11 +881,11 @@ class Petition_widget extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(left: 20.0, top: 10.0),
-                        child: Container(
+                        padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                        child: SizedBox(
                           width: 540,
                           child: Text(
-                            description,
+                            widget.description,
                             textAlign: TextAlign.left,
                             maxLines: 8,
                             style: const TextStyle(
@@ -858,61 +896,75 @@ class Petition_widget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // if (superStringCurrentWindow != "ViewPetitions")
-                      //   Padding(
-                      //     padding: const EdgeInsets.only(left: 20.0, top: 30.0),
-                      //     child: SizedBox(
-                      //       width: 150,
-                      //       child: ElevatedButton(
-                      //         onPressed: () {},
-                      //         style: ElevatedButton.styleFrom(
-                      //             shape: const RoundedRectangleBorder(
-                      //                 borderRadius:
-                      //                     ConstantValues.borderRadius_7),
-                      //             primary:
-                      //                 const Color.fromARGB(255, 52, 64, 180)),
-                      //         child: const Text(
-                      //           "Редактировать",
-                      //           style: TextStyle(
-                      //               fontSize: 15, color: Colors.white),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // Padding(
-                      //   padding: const EdgeInsets.only(left: 20.0, top: 15.0),
-                      //   child: SizedBox(
-                      //     width: 150,
-                      //     child: ElevatedButton(
-                      //       onPressed: () {},
-                      //       style: ElevatedButton.styleFrom(
-                      //           shape: const RoundedRectangleBorder(
-                      //               borderRadius:
-                      //                   ConstantValues.borderRadius_7),
-                      //           primary: const Color.fromRGBO(254, 125, 99, 1)),
-                      //       child: const Text(
-                      //         "Удалить",
-                      //         style:
-                      //             TextStyle(fontSize: 15, color: Colors.white),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      //if (widget.superStringCurrentWindow == 'ViewPetitions' &&
+                      //    petition_is_signed)
+                      //  Padding(
+                      //    padding: EdgeInsets.only(left: 20.0, top: 10.0),
+                      //    child: Container(
+                      //      width: 200,
+                      //      child: const Text(
+                      //        'Подписано',
+                      //        textAlign: TextAlign.left,
+                      //        style: TextStyle(
+                      //          fontSize: 20,
+                      //          color: Color.fromARGB(255, 254, 125, 99),
+                      //        ),
+                      //      ),
+                      //    ),
+                      //  ),
+                      if (widget.superStringCurrentWindow == 'ViewPetitions')
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                          child: SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                sign = _postSign.sign(
+                                    'https://mpt-petitions.ru/api/petitions/${widget.id}/sign',
+                                    global.user.token);
+
+                                //if (petition_is_signed) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Успешное подписание петиции.")));
+                                //} else {
+                                //ScaffoldMessenger.of(context).showSnackBar(
+                                //    const SnackBar(
+                                //        content:
+                                //            Text("Петиция уже подписана.")));
+                                //}
+                                widget.onUpdateSelected();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          ConstantValues.borderRadius_7),
+                                  primary:
+                                      const Color.fromARGB(255, 52, 64, 180)),
+                              child: const Text(
+                                "Подписаться",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (pickedFile != null)
+                      if (widget.pickedFile != null)
                         Padding(
                             padding: const EdgeInsets.only(
                                 right: 20, left: 30, top: 20, bottom: 20),
                             child: Image.network(
-                              pickedFile as String,
+                              widget.pickedFile as String,
                               height: 250,
                               width: 250,
-                            )),
+                            ))
                     ],
                   )
                 ],

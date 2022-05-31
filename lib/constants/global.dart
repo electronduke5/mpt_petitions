@@ -10,6 +10,7 @@ UserModel user = UserModel(
     name: "name",
     email: "email",
     token: "token",
+    image: null,
     id: -1,
     petitions: null);
 

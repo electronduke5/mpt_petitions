@@ -13,15 +13,16 @@ class PetitionModel {
   final String nameAuthor;
   final String surnameAuthor;
 
-  PetitionModel({required this.id,
-    required this.name,
-    required this.description,
-    required this.image,
-    required this.user_id,
-    required this.created_at,
-    required this.signatures,
-    required this.surnameAuthor,
-    required this.nameAuthor});
+  PetitionModel(
+      {required this.id,
+      required this.name,
+      required this.description,
+      required this.image,
+      required this.user_id,
+      required this.created_at,
+      required this.signatures,
+      required this.surnameAuthor,
+      required this.nameAuthor});
 
   factory PetitionModel.fromJson(Map<String, dynamic> data) {
     final id = data['id'].toString();
@@ -64,7 +65,7 @@ class PetitionModel {
         surnameAuthor: surnameAuthor);
   }
 
-  factory PetitionModel.MyPetitionFromJson(Map<String, dynamic> data){
+  factory PetitionModel.MyPetitionFromJson(Map<String, dynamic> data) {
     final id = data['id'].toString();
     print('ID: $id');
     final name = data['name'] as String;
@@ -112,8 +113,19 @@ class CountOfPetitions {
   String? prevPageApi;
   String? nextPageApi;
 
-  CountOfPetitions({required this.countOfPages,
-    required this.currentPage,
-    required this.prevPageApi,
-    required this.nextPageApi});
+  CountOfPetitions(
+      {required this.countOfPages,
+      required this.currentPage,
+      required this.prevPageApi,
+      required this.nextPageApi});
+}
+
+class PetitionSign {
+  String message;
+  PetitionSign({required this.message});
+}
+
+class IsPetitionSigned{
+  bool signed;
+  IsPetitionSigned({required this.signed});
 }

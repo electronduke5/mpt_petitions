@@ -7,7 +7,7 @@ import 'package:mpt_petitions/pages/Password.dart';
 import 'package:mpt_petitions/pages/Petition.dart';
 import 'package:mpt_petitions/pages/Search.dart';
 import 'package:mpt_petitions/pages/View_petitions.dart';
-import '../constants/global.dart' as global;
+import '../../constants/global.dart' as global;
 
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -36,6 +36,7 @@ class Profile extends StatefulWidget {
 }
 
 class MyFormState extends State {
+
   final _formKey = GlobalKey<FormState>();
   bool obscure = true;
   var HttpLog = ' https://mpt-petitions.ru/api/Login';

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -18,10 +17,9 @@ import 'package:mpt_petitions/pages/Petition.dart';
 import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/pages/Search.dart';
 import 'package:mpt_petitions/pages/View_petitions.dart';
+import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/services/make_petition_service.dart';
 import '../constants/global.dart' as global;
-
-
 
 void main() {
   runApp(
@@ -67,7 +65,6 @@ class MyFormState extends State {
         isLoading = true;
       });
 
-
       result = await FilePickerWeb.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
@@ -92,15 +89,10 @@ class MyFormState extends State {
   var count = 0;
   var count_for_button = 1;
 
-
   List<Widget> buttonsMass2 = [
     TextButton(
-        onPressed: () {
-
-        },
-        child: Text('1', style: TextStyle(fontSize: 12))),
+        onPressed: () {}, child: Text('1', style: TextStyle(fontSize: 12))),
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +157,7 @@ class MyFormState extends State {
                       ),
                       hintText: 'Введите название петиции',
                       contentPadding:
-                      EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
+                          EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
                       fillColor: Colors.white,
                       filled: true,
                     ),
@@ -263,9 +255,7 @@ class MyFormState extends State {
                       )),
                 if (pickedFile == null)
                   const SizedBox(
-                      height: 130,
-                      width: 160,
-                      child: Icon(Icons.add_a_photo)),
+                      height: 130, width: 160, child: Icon(Icons.add_a_photo)),
                 const SizedBox(
                   height: 25,
                 ),
@@ -295,44 +285,20 @@ class MyFormState extends State {
                   width: 250,
                   height: 40,
                   child: RaisedButton(
-                    onPressed: () async{
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
                           PetitionModel? petitionModel = await _makePetition
-                              .makePetition(
-                              name, content, _file);
+                              .makePetition(name, content, _file);
                           print("name: ");
                           print(petitionModel?.name);
                           print("description: ");
                           print(petitionModel?.description);
 
-                          if (petitionModel != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(petitionModel.name)));
-                          }
-
-
-                          count = count + 1;
-
-                          if (count % 2 == 0) {
-                            count_for_button = buttonsMass.length.toInt() + 1;
-                            //   var butMass = Button_massiv();
-                            buttonsMass.add(TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  one = 2;
-                                  three = 4;
-                                });
-                              },
-                              child: Text(count_for_button.toString(),
-                                  style: TextStyle(fontSize: 12)),
-                            ));
-                          }
-
-                          Scaffold.of(context).showSnackBar(const SnackBar(
-                              content: Text('Форма успешно сохранена')));
-                        }
-                        catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Петиция успешно добавлена!")));
+                        } catch (e) {
                           print(e.toString());
                         }
                       }
@@ -349,6 +315,9 @@ class MyFormState extends State {
                     ),
                   ),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
@@ -356,5 +325,4 @@ class MyFormState extends State {
       ),
     );
   }
-
 }

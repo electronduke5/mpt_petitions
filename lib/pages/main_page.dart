@@ -35,9 +35,8 @@ class _HomePageState extends State<MainPage> {
           children: [
             Container(
               width: double.infinity,
-              alignment: Alignment.center,
+              alignment: Alignment.topCenter,
               height: 90,
-              color: const Color.fromRGBO(4, 19, 165, 0.75),
               child: AppBar_widget(),
             ),
             Container(
