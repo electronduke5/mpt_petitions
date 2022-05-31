@@ -11,16 +11,19 @@ import '../constants/global.dart' as global;
 class MakePetitionService extends IMakePetition {
   @override
   Future<PetitionModel?> makePetition(
-      String name, String description, PlatformFile image) async {
+      String name, String description, PlatformFile? image) async {
     try{
       const api = 'https://mpt-petitions.ru/api/make-petition';
-
-      var mFile = MultipartFile.fromBytes(image.bytes!, filename: image.name);
+      var data = FormData.fromMap({"name": name, "description": description});
+      if(image != null) {
+        var mFile = MultipartFile.fromBytes(image.bytes!, filename: image.name);
+        data.files.add(MapEntry('image', mFile));
+      }
 
       //var formData = FormData();
       //formData.files.add(MapEntry('image', mFile));
-      var data = FormData.fromMap({"name": name, "description": description});
-      data.files.add(MapEntry('image', mFile));
+
+
 
       final dio = Dio();
       dio.options.headers

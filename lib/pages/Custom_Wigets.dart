@@ -1,18 +1,23 @@
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:file_picker/_internal/file_picker_web.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mpt_petitions/interfaces/logout_interface.dart';
+import 'package:mpt_petitions/interfaces/update_petition_interface.dart';
+import 'package:mpt_petitions/models/petition_model.dart';
 import 'package:mpt_petitions/models/user_model.dart';
 import 'package:mpt_petitions/pages/Create_Petition.dart';
 import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/pages/View_petitions.dart';
 import 'package:mpt_petitions/pages/authorization_page.dart';
 import 'package:mpt_petitions/services/logout_service.dart';
+import 'package:mpt_petitions/services/update_petition_service.dart';
 
 import '../constants/constants.dart';
 
@@ -221,6 +226,471 @@ class Button_massiv extends StatelessWidget {
   }
 }
 
+class PetitionWidget extends StatefulWidget {
+  final String id;
+  final String name;
+  final String description;
+  final String created_at;
+  final String signatures;
+  final String? pickedFile;
+  final String nameAuthor;
+  final String surnameAuthor;
+  final String superStringCurrentWindow;
+  final Color backgroundPetitionColor;
+  final Color containerPetitionColor;
+
+  PetitionWidget(
+      {Key? key,
+      required this.id,
+      required this.name,
+      required this.description,
+      required this.created_at,
+      required this.signatures,
+      required this.pickedFile,
+      required this.nameAuthor,
+      required this.surnameAuthor,
+      required this.superStringCurrentWindow,
+      required this.backgroundPetitionColor,
+      required this.containerPetitionColor})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => FormPetitionState();
+}
+
+class FormPetitionState extends State<PetitionWidget> {
+  bool isTextField = false;
+
+  final IUpdatePetition _updatePetition = UpdatePetitionService();
+
+
+  FilePickerResult? result;
+  String? _fileName;
+  Uint8List? pickedFile;
+  bool isLoading = false;
+  var _file;
+
+
+  void _pickFile() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      result = await FilePickerWeb.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+      if (result != null) {
+        _fileName = result!.files.first.name;
+        print("$_fileName");
+        pickedFile = result!.files.single.bytes;
+        _file = result?.files.single;
+        print('${_file!.path}');
+      }
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  var updateName;
+  var updateDescription;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: 1000,
+        height: 390,
+        color: widget.containerPetitionColor,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 380,
+              width: 900,
+              decoration: BoxDecoration(
+                borderRadius: ConstantValues.borderRadius_7,
+                color: widget.backgroundPetitionColor,
+              ),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isTextField == false)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 20.0),
+                          child: Text(
+                            widget.name,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 4, 19, 165),
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      if (isTextField == true)
+                        SizedBox(
+                          height: 80,
+                          width: 300,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, top: 20.0),
+                              child: TextFormField(
+                                controller:
+                                    TextEditingController(text: widget.name),
+                                textAlign: TextAlign.left,
+                                validator: (value) {
+                                  if (value == "") {
+                                    return "Заполните поле ввода создания петиции";
+                                  }
+                                },
+                                onChanged: (text) {
+                                  updateName = text;
+                                },
+                                decoration: const InputDecoration(
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(
+                                        color:
+                                            Color.fromARGB(255, 254, 125, 99),
+                                        width: 2.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(
+                                        color:
+                                            Color.fromARGB(255, 254, 125, 99),
+                                        width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(
+                                        color:
+                                            Color.fromARGB(255, 250, 232, 220),
+                                        width: 0.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(
+                                        color:
+                                            Color.fromARGB(255, 254, 125, 99),
+                                        width: 2.0),
+                                  ),
+                                  hintText: 'Введите название петиции',
+                                  //contentPadding:
+                                  // EdgeInsets.only(left: 14.0, bottom: 0.0, top: 0.0),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 18.0,
+                                  color: Color.fromARGB(255, 254, 125, 99),
+                                ),
+                              )),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.account_circle,
+                              color: Color.fromARGB(255, 254, 125, 99),
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Text(
+                              (widget.surnameAuthor + " " + widget.nameAuthor)
+                                  .toString(),
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 254, 125, 99),
+                                  decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, top: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.wc,
+                              color: Color.fromARGB(255, 254, 125, 99),
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Text(
+                              widget.signatures + ' человек',
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 254, 125, 99),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isTextField == false)
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0, top: 10.0),
+                          child: Container(
+                            width: 540,
+                            child: Text(
+                              widget.description,
+                              textAlign: TextAlign.left,
+                              maxLines: 8,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Color.fromARGB(255, 4, 19, 165),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isTextField)
+                        SizedBox(
+                            height: 120,
+                            width: 300,
+                            child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 20.0, top: 20.0),
+                                child: TextFormField(
+                                  onChanged: (text) {
+                                    updateDescription = text;
+                                  },
+                                  maxLength: 500,
+                                  minLines: 8,
+                                  maxLines: 10,
+                                  controller: TextEditingController(
+                                      text: widget.description),
+                                  decoration: const InputDecoration(
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                      borderSide: BorderSide(
+                                          color: Color.fromARGB(
+                                              255, 250, 232, 220),
+                                          width: 0.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                      borderSide: BorderSide(
+                                          color: Color.fromARGB(
+                                              255, 250, 232, 220),
+                                          width: 2.0),
+                                    ),
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    hintText:
+                                        'Напишите содержание вашей петиции...',
+                                    hintStyle: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  style: const TextStyle(fontSize: 16),
+                                ))),
+                      if (widget.superStringCurrentWindow != "ViewPetitions" &&
+                          isTextField == false)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 30.0),
+                          child: SizedBox(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  isTextField = true;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          ConstantValues.borderRadius_7),
+                                  primary:
+                                      const Color.fromARGB(255, 52, 64, 180)),
+                              child: const Text(
+                                "Редактировать",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isTextField == true)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 30.0),
+                          child: SizedBox(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  isTextField = false;
+                                });
+                                PetitionModel? petitionModel = _updatePetition.updatePetition(
+                                    int.parse(widget.id), updateName, updateDescription, _file) as PetitionModel?;
+
+                                print("name: ${petitionModel!.name}");
+                                print("description: ${petitionModel.description}");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Петиция успешно обновлена!")));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          ConstantValues.borderRadius_7),
+                                  primary:
+                                      const Color.fromARGB(255, 52, 64, 180)),
+                              child: const Text(
+                                "Сохранить",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isTextField == false)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 15.0),
+                          child: SizedBox(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          ConstantValues.borderRadius_7),
+                                  primary:
+                                      const Color.fromRGBO(254, 125, 99, 1)),
+                              child: const Text(
+                                "Удалить",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isTextField == true)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 15.0),
+                          child: SizedBox(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  isTextField = false;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          ConstantValues.borderRadius_7),
+                                  primary:
+                                      const Color.fromRGBO(254, 125, 99, 1)),
+                              child: const Text(
+                                "Отмена",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.pickedFile != null && isTextField == false)
+                        Padding(
+                            padding: const EdgeInsets.only(
+                                right: 20, left: 30, top: 20, bottom: 20),
+                            child: Image.network(
+                              widget.pickedFile as String,
+                              height: 250,
+                              width: 250,
+                            )),
+                      if (isTextField == true)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children:  [
+                            const SizedBox(
+                                height: 20,
+                                width: 600,
+                                child: Text("Загрузить фотографию",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0,
+                                        color:
+                                            Color.fromARGB(255, 4, 19, 165)))),
+                            if (pickedFile != null)
+                              SizedBox(
+                                  height: 130,
+                                  width: 160,
+                                  child: Image(
+                                    image: MemoryImage(pickedFile!),
+                                    alignment: Alignment.topCenter,
+                                  )),
+                            if (pickedFile == null && isTextField == true)
+                              const SizedBox(
+                                  height: 130,
+                                  width: 160,
+                                  child: Icon(Icons.add_a_photo)),
+                            if (isTextField == true)
+                              const SizedBox(
+                                height: 35,
+                              ),
+                            if (isTextField == true)
+                              SizedBox(
+                                width: 160,
+                                height: 35,
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    _pickFile();
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0)),
+                                  color: const Color.fromARGB(255, 4, 19, 165),
+                                  child: const Text(
+                                    'Загрузить фотографию',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ));
+  }
+}
+
 class Petition_widget extends StatelessWidget {
   final String id;
   final String name;
@@ -230,6 +700,10 @@ class Petition_widget extends StatelessWidget {
   final String? pickedFile;
   final String nameAuthor;
   final String surnameAuthor;
+  final String superStringCurrentWindow;
+  final Color backgroundPetitionColor;
+  final Color containerPetitionColor;
+  bool isTextField = false;
 
   Petition_widget(
       {Key? key,
@@ -240,25 +714,28 @@ class Petition_widget extends StatelessWidget {
       required this.signatures,
       required this.pickedFile,
       required this.nameAuthor,
-      required this.surnameAuthor})
+      required this.surnameAuthor,
+      required this.superStringCurrentWindow,
+      required this.backgroundPetitionColor,
+      required this.containerPetitionColor})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
         width: 1000,
-        height: 300,
-        color: const Color.fromARGB(255, 255, 255, 248),
+        height: 390,
+        color: containerPetitionColor,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 290,
+              height: 380,
               width: 900,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 borderRadius: ConstantValues.borderRadius_7,
-                color: Color.fromRGBO(235, 235, 235, 1),
+                color: backgroundPetitionColor,
               ),
               child: Row(
                 children: [
@@ -281,7 +758,7 @@ class Petition_widget extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children:  [
+                          children: [
                             const Icon(
                               Icons.account_circle,
                               color: Color.fromARGB(255, 254, 125, 99),
@@ -289,8 +766,8 @@ class Petition_widget extends StatelessWidget {
                             const SizedBox(
                               width: 7,
                             ),
-                             Text(
-                               (surnameAuthor + " " + nameAuthor).toString(),
+                            Text(
+                              (surnameAuthor + " " + nameAuthor).toString(),
                               textAlign: TextAlign.left,
                               style: const TextStyle(
                                   fontSize: 20,
@@ -340,6 +817,46 @@ class Petition_widget extends StatelessWidget {
                           ),
                         ),
                       ),
+                      // if (superStringCurrentWindow != "ViewPetitions")
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(left: 20.0, top: 30.0),
+                      //     child: SizedBox(
+                      //       width: 150,
+                      //       child: ElevatedButton(
+                      //         onPressed: () {},
+                      //         style: ElevatedButton.styleFrom(
+                      //             shape: const RoundedRectangleBorder(
+                      //                 borderRadius:
+                      //                     ConstantValues.borderRadius_7),
+                      //             primary:
+                      //                 const Color.fromARGB(255, 52, 64, 180)),
+                      //         child: const Text(
+                      //           "Редактировать",
+                      //           style: TextStyle(
+                      //               fontSize: 15, color: Colors.white),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(left: 20.0, top: 15.0),
+                      //   child: SizedBox(
+                      //     width: 150,
+                      //     child: ElevatedButton(
+                      //       onPressed: () {},
+                      //       style: ElevatedButton.styleFrom(
+                      //           shape: const RoundedRectangleBorder(
+                      //               borderRadius:
+                      //                   ConstantValues.borderRadius_7),
+                      //           primary: const Color.fromRGBO(254, 125, 99, 1)),
+                      //       child: const Text(
+                      //         "Удалить",
+                      //         style:
+                      //             TextStyle(fontSize: 15, color: Colors.white),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                   Column(
@@ -354,15 +871,7 @@ class Petition_widget extends StatelessWidget {
                               pickedFile as String,
                               height: 250,
                               width: 250,
-                            ))
-                      else
-                        const Padding(
-                            padding:
-                                EdgeInsets.only(right: 20, left: 30, top: 20, bottom: 20),
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 40,
-                            ))
+                            )),
                     ],
                   )
                 ],
@@ -371,102 +880,4 @@ class Petition_widget extends StatelessWidget {
           ],
         ));
   }
-// Widget build(BuildContext context) {
-//   return Container(
-//       width: 1350,
-//       height: 300,
-//       color: Color.fromARGB(255, 255, 253, 248),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.end,
-//         mainAxisAlignment: MainAxisAlignment.end,
-//         children: [
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Padding(
-//                 padding: EdgeInsets.only(left: 20.0, top: 20.0),
-//                 child: Text(
-//                   name,
-//                   textAlign: TextAlign.left,
-//                   style: TextStyle(
-//                       fontSize: 20,
-//                       color: Color.fromARGB(255, 4, 19, 165),
-//                       fontWeight: FontWeight.bold),
-//                 ),
-//               ),
-//               Padding(
-//                 padding: EdgeInsets.only(left: 20.0, top: 10.0),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.start,
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     Icon(
-//                       Icons.account_circle,
-//                       color: Color.fromARGB(255, 254, 125, 99),
-//                     ),
-//                     SizedBox(
-//                       width: 7,
-//                     ),
-//                     Text(
-//                       author,
-//                       textAlign: TextAlign.left,
-//                       style: TextStyle(
-//                         fontSize: 20,
-//                         color: Color.fromARGB(255, 254, 125, 99),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Padding(
-//                 padding: EdgeInsets.only(left: 20.0, top: 10.0),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.start,
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     Icon(
-//                       Icons.wc,
-//                       color: Color.fromARGB(255, 254, 125, 99),
-//                     ),
-//                     SizedBox(
-//                       width: 7,
-//                     ),
-//                     Text(
-//                       amount + ' человек',
-//                       textAlign: TextAlign.left,
-//                       style: TextStyle(
-//                         fontSize: 20,
-//                         color: Color.fromARGB(255, 254, 125, 99),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Padding(
-//                 padding: EdgeInsets.only(left: 20.0, top: 10.0),
-//                 child: Container(
-//                   width: 950,
-//                   height: 160,
-//                   child: Text(
-//                     content,
-//                     textAlign: TextAlign.left,
-//                     maxLines: 8,
-//                     style: TextStyle(
-//                       fontSize: 15,
-//                       color: Color.fromARGB(255, 4, 19, 165),
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-//                 ),
-//               )
-//             ],
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.only(right: 20, left: 10),
-//             child:
-//                 Image(image: MemoryImage(pickedFile!), height: 300, width: 290, ),
-//           ),
-//         ],
-//       ));
-// }
 }

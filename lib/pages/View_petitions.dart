@@ -8,9 +8,11 @@ import 'package:mpt_petitions/pages/Petition.dart';
 import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/pages/Search.dart';
 
+import '../constants/constants.dart';
 import '../interfaces/get_petition_interface.dart';
 import '../models/petition_model.dart';
 import '../services/get_petition_service.dart';
+import '../constants/constants.dart' as constants;
 
 void main() {
   runApp(
@@ -55,7 +57,6 @@ class MyFormState extends State {
   }
 
   bool obscure = true;
-  var HttpLog = ' https://mpt-petitions.ru/api/Login';
   final style = const ButtonStyle(
     alignment: Alignment.center,
   );
@@ -158,7 +159,10 @@ class MyFormState extends State {
                               created_at: petition.created_at,
                               signatures: petition.signatures.toString(),
                               nameAuthor: petition.nameAuthor.toString(),
-                              surnameAuthor: petition.surnameAuthor.toString());
+                              surnameAuthor: petition.surnameAuthor.toString(),
+                              superStringCurrentWindow: "ViewPetitions",
+                              backgroundPetitionColor: ConstantValues.backgroundPetitionColor,
+                              containerPetitionColor: ConstantValues.containerPetitionColor);
                         },
                         itemCount: (snapshot.data as List<PetitionModel>).length),
                   );
@@ -195,14 +199,14 @@ class MyFormState extends State {
                                       _getCountOfPetitions.getCountOfPetitions(api);
                                 });
                               },
-                              child: Text('<',
+                              child: const Text('<',
                                   style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
                                       color: Color.fromARGB(255, 254, 125, 99)))),
                         Text(
                           buttons.currentPage + '/' + buttons.countOfPages,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 36,
                               color: Color.fromRGBO(206, 206, 206, 1),
                               decoration: TextDecoration.none),
@@ -218,7 +222,7 @@ class MyFormState extends State {
                                       _getCountOfPetitions.getCountOfPetitions(api);
                                 });
                               },
-                              child: Text('>',
+                              child: const Text('>',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 28,

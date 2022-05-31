@@ -26,12 +26,12 @@ import '../constants/global.dart' as global;
 void main() {
   runApp(
     MaterialApp(
-      initialRoute: '/create',
+      initialRoute: '/update',
       routes: {
         '/password': (context) => Password(),
         '/profile': (context) => Profile(),
         '/petition': (context) => Petitions(),
-        '/create': (context) => const CreatePetition(),
+        '/update': (context) => const UpdatePetition(),
         '/view': (context) => View_petition(),
         '/search': (context) => Search(),
       },
@@ -39,10 +39,10 @@ void main() {
   );
 }
 
-class CreatePetition extends StatefulWidget {
+class UpdatePetition extends StatefulWidget {
   // final UserModel? user;
   // const CreatePetition({Key? key, required this.user}) : super(key: key);
-  const CreatePetition({Key? key}) : super(key: key);
+  const UpdatePetition({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => MyFormState();
@@ -321,7 +321,7 @@ class MyFormState extends State {
                             signatures: "0",
                             description: petitionModel.description,
                             //author: global.user.surname + " " +
-                              //  global.user.name,
+                            //  global.user.name,
                             //content: content,
                             id: petitionModel.id as String,
                             created_at: petitionModel.created_at,

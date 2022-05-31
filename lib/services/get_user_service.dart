@@ -35,7 +35,7 @@ class GetUserService extends IGetUser {
         // print("Name: ${list[0].name}");
         // print('Description: ${list[0].description}');
 
-        return UserModel.fromJson(body['user'], token.getString("token"));
+        return UserModel.fromJson(body, token.getString("token"));
 
         // return UserModel(
         //     id: body['user']['id'],
