@@ -295,12 +295,12 @@ class MyFormState extends State {
                   width: 250,
                   height: 40,
                   child: RaisedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       if (_formKey.currentState!.validate()) {
                         try {
-                          PetitionModel? petitionModel = _makePetition
+                          PetitionModel? petitionModel = await _makePetition
                               .makePetition(
-                              name, content, _file!) as PetitionModel?;
+                              name, content, _file);
                           print("name: ");
                           print(petitionModel?.name);
                           print("description: ");
@@ -311,23 +311,7 @@ class MyFormState extends State {
                                 SnackBar(content: Text(petitionModel.name)));
                           }
 
-                          petitionsMass.add(Petition_widget(
-                            superStringCurrentWindow: "ViewPetitions",
-                            backgroundPetitionColor: ConstantValues.backgroundPetitionColor,
-                            containerPetitionColor: ConstantValues.containerPetitionColor,
-                            surnameAuthor: petitionModel!.surnameAuthor,
-                            nameAuthor: petitionModel.nameAuthor,
-                            name: name,
-                            signatures: "0",
-                            description: petitionModel.description,
-                            //author: global.user.surname + " " +
-                              //  global.user.name,
-                            //content: content,
-                            id: petitionModel.id as String,
-                            created_at: petitionModel.created_at,
-                            pickedFile: _file,
 
-                          ));
                           count = count + 1;
 
                           if (count % 2 == 0) {

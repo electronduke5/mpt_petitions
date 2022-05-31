@@ -25,14 +25,15 @@ abstract class IUpdatePetition {
     Response response = await dio.post("/$id", data: data);
     if (response.statusCode == 200) {
       var body = response.data;
+      print("UPDATE PETITION: $body");
       return PetitionModel(
-          id: body['id'],
-          user_id: body['user_id'],
-          name: name,
+          id: body['id'].toString(),
+          user_id: body['user_id'].toString(),
+          name: name.toString(),
           description: description,
-          signatures: "0",
-          created_at: body['created_at'],
-          image: body['image'],
+          signatures: body['signatures_count'].toString(),
+          created_at: body['created_at'].toString(),
+          image: body['image'].toString(),
           nameAuthor: global.user.name,
           surnameAuthor: global.user.surname);
     } else {

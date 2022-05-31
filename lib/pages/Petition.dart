@@ -7,8 +7,10 @@ import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/pages/Search.dart';
 import 'package:mpt_petitions/pages/View_petitions.dart';
 import 'package:mpt_petitions/services/get_user_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/global.dart' as global;
 import '../models/petition_model.dart';
+import '../models/user_model.dart';
 
 void main() {
   runApp(
@@ -39,11 +41,13 @@ class MyFormState extends State {
   );
 
   var listPetition = global.getMyPetition();
+  var user;
+  final IGetUser _getUser = GetUserService();
 
   @override
   void initState() {
     super.initState();
-    global.updateUser(global.user.token!);
+    user = global.user;
     listPetition = global.getMyPetition();
   }
 
@@ -200,6 +204,14 @@ class MyFormState extends State {
                                       nameAuthor: global.user.name,
                                       surnameAuthor: global.user.surname,
                                       superStringCurrentWindow: "MyPetitions",
+                                      onUpdateSelected: () async {
+                                        user = await global.updateUser();
+
+                                        setState(() {
+                                          global.user = user;
+                                          listPetition = global.getMyPetition();
+                                        });
+                                      },
                                       containerPetitionColor:
                                           const Color.fromARGB(
                                               255, 246, 244, 238),
@@ -220,56 +232,9 @@ class MyFormState extends State {
                               return const CircularProgressIndicator();
                             },
                           ),
-                          // SizedBox(
-                          //   height: 65,
-                          //   width: 250,
-                          //   child: Button_massiv(),
-                          // ),
-                          // SizedBox(
-                          //   width: 250,
-                          //   height: 35,
-                          //   child: RaisedButton(
-                          //     onPressed: () {
-                          //       setState(() {
-                          //         one = 3;
-                          //         two = 4;
-                          //       });
-                          //
-                          //       if (_formKey.currentState!.validate()) {
-                          //         Scaffold.of(context).showSnackBar(
-                          //             const SnackBar(
-                          //                 content:
-                          //                     Text('Форма успешно сохранена')));
-                          //       }
-                          //     },
-                          //     shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(5.0)),
-                          //     color: const Color.fromARGB(255, 52, 64, 180),
-                          //     child: const Text(
-                          //       'Сохранить',
-                          //       style: TextStyle(
-                          //         fontSize: 15,
-                          //         color: Colors.white,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
                           const SizedBox(
                             height: 20,
                           ),
-                          // SizedBox(
-                          //   height: 20,
-                          //   width: 100,
-                          //   child: TextButton(
-                          //     onPressed: () {},
-                          //     child: const Text("Отменить",
-                          //         textAlign: TextAlign.center,
-                          //         style: TextStyle(
-                          //             fontSize: 17.0,
-                          //             decoration: TextDecoration.underline,
-                          //             color: Color.fromARGB(255, 4, 19, 165))),
-                          //   ),
-                          // ),
                         ]),
                       )),
                 ),

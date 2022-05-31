@@ -166,9 +166,9 @@ class MyFormState extends State {
                         },
                         itemCount: (snapshot.data as List<PetitionModel>).length),
                   );
-                } else if (snapshot.hasError) {
+                } else {
                   print("Error: ${snapshot.error}");
-                  return Text("${snapshot.error}");
+                  return const CircularProgressIndicator();
                 }
                 // By default show a loading spinner.
                 return const CircularProgressIndicator();
@@ -229,6 +229,9 @@ class MyFormState extends State {
                                       color: Color.fromARGB(255, 254, 125, 99))))
                       ],
                     );
+                  }
+                  else{
+                    return CircularProgressIndicator();
                   }
                 } else if (snapshot.hasError) {
                   return Text(

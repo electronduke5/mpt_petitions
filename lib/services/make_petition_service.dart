@@ -12,32 +12,24 @@ class MakePetitionService extends IMakePetition {
   @override
   Future<PetitionModel?> makePetition(
       String name, String description, PlatformFile? image) async {
-    try{
+    try {
       const api = 'https://mpt-petitions.ru/api/make-petition';
+
       var data = FormData.fromMap({"name": name, "description": description});
-      if(image != null) {
+
+      if (image != null) {
         var mFile = MultipartFile.fromBytes(image.bytes!, filename: image.name);
         data.files.add(MapEntry('image', mFile));
       }
-
-      //var formData = FormData();
-      //formData.files.add(MapEntry('image', mFile));
-
-
 
       final dio = Dio();
       dio.options.headers
           .addAll({"Authorization": "Bearer ${global.user.token}"});
 
       Response response = await dio.post(api, data: data);
-      print("response: " + response.data.toString());
-      print("responseCode: " + response.statusCode.toString());
 
       if (response.statusCode == 200) {
         final body = response.data;
-        print("name: " + body["name"]);
-        print("desc: " + body["description"]);
-        print("body: " + body.toString());
         return PetitionModel(
             id: body['id'],
             user_id: body['user_id'],
@@ -51,9 +43,8 @@ class MakePetitionService extends IMakePetition {
       } else {
         return null;
       }
-    } on DioError catch (error){
+    } on DioError catch (error) {
       throw Exception(error);
     }
-
   }
 }

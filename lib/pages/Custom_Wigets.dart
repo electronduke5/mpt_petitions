@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mpt_petitions/interfaces/delete_petition_interface.dart';
 import 'package:mpt_petitions/interfaces/logout_interface.dart';
 import 'package:mpt_petitions/interfaces/update_petition_interface.dart';
 import 'package:mpt_petitions/models/petition_model.dart';
@@ -16,10 +17,15 @@ import 'package:mpt_petitions/pages/Create_Petition.dart';
 import 'package:mpt_petitions/pages/Profile.dart';
 import 'package:mpt_petitions/pages/View_petitions.dart';
 import 'package:mpt_petitions/pages/authorization_page.dart';
+import 'package:mpt_petitions/services/delete_petition_service.dart';
 import 'package:mpt_petitions/services/logout_service.dart';
 import 'package:mpt_petitions/services/update_petition_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
+import '../constants/global.dart' as global;
+import '../interfaces/get_user_interface.dart';
+import '../services/get_user_service.dart';
 
 class AppBar_widget extends StatelessWidget {
   @override
@@ -132,24 +138,18 @@ class AppBar_widget extends StatelessWidget {
                   children: [
                     TextButton(
                         onPressed: () async {
-                          // try {
-                          //   if (_logoutService
-                          //       .logout(user?.token) ==
-                          //       true) {
-                          //
-                          //     Navigator.of(context).pushReplacement(
-                          //         MaterialPageRoute(
-                          //             builder: (_) =>
-                          //             const AuthorizationPage()));
-                          //   } else {
-                          //     ScaffoldMessenger.of(context).showSnackBar(
-                          //         const SnackBar(
-                          //             content: Text(
-                          //                 "Ошибка при выходе из аккаунта")));
-                          //   }
-                          // } catch (e) {
-                          //   print(e.toString());
-                          // }
+                          try {
+                            var isLogout = await _logoutService.logout(global.user.token!);
+
+                            if(isLogout == true){
+                              Navigator.of(context).pushReplacement(
+                                       MaterialPageRoute(
+                                           builder: (_) =>
+                                           const AuthorizationPage()));
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                          }
                         },
                         child: SvgPicture.asset("web/icons/IconLogout.svg",
                             height: 30, width: 30))
@@ -238,6 +238,7 @@ class PetitionWidget extends StatefulWidget {
   final String superStringCurrentWindow;
   final Color backgroundPetitionColor;
   final Color containerPetitionColor;
+  final VoidCallback onUpdateSelected;
 
   PetitionWidget(
       {Key? key,
@@ -251,8 +252,11 @@ class PetitionWidget extends StatefulWidget {
       required this.surnameAuthor,
       required this.superStringCurrentWindow,
       required this.backgroundPetitionColor,
-      required this.containerPetitionColor})
+      required this.containerPetitionColor,
+      required this.onUpdateSelected()})
       : super(key: key);
+
+
 
   @override
   State<StatefulWidget> createState() => FormPetitionState();
@@ -262,7 +266,8 @@ class FormPetitionState extends State<PetitionWidget> {
   bool isTextField = false;
 
   final IUpdatePetition _updatePetition = UpdatePetitionService();
-
+  final IDeletePetition _deletePetition = DeletePetitionService();
+  final IGetUser _getUser = GetUserService();
 
   FilePickerResult? result;
   String? _fileName;
@@ -323,6 +328,7 @@ class FormPetitionState extends State<PetitionWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (isTextField == false)
+
                         Padding(
                           padding: const EdgeInsets.only(left: 20.0, top: 20.0),
                           child: Text(
@@ -539,17 +545,28 @@ class FormPetitionState extends State<PetitionWidget> {
                           child: SizedBox(
                             width: 150,
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async{
                                 setState(() {
                                   isTextField = false;
                                 });
-                                PetitionModel? petitionModel = _updatePetition.updatePetition(
-                                    int.parse(widget.id), updateName, updateDescription, _file) as PetitionModel?;
+                                PetitionModel? petitionModel = await _updatePetition.updatePetition(
+                                    int.parse(widget.id), updateName, updateDescription, _file);
 
                                 print("name: ${petitionModel!.name}");
                                 print("description: ${petitionModel.description}");
+
+                                print("TOKEN:${global.user.token}");
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                prefs.setString("token", global.user.token!);
+
+                                global.user = (await _getUser.getUser(prefs))!;
+
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text("Петиция успешно обновлена!")));
+
+                                widget.onUpdateSelected();
+
                               },
                               style: ElevatedButton.styleFrom(
                                   shape: const RoundedRectangleBorder(
@@ -571,7 +588,31 @@ class FormPetitionState extends State<PetitionWidget> {
                           child: SizedBox(
                             width: 150,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () async{
+                                setState(() {
+                                  isTextField = false;
+                                });
+
+                                var isDeleted = await _deletePetition.deletePetition(int.parse(widget.id));
+                                if(isDeleted){
+
+                                  global.updateUser();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Петиция удалена")),
+                                  );
+
+                                  widget.onUpdateSelected();
+                                }
+                                else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Ошибка при удалении петиции")),
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                   shape: const RoundedRectangleBorder(
                                       borderRadius:
